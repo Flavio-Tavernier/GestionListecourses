@@ -17,7 +17,7 @@ namespace GestionListeCourses
         public Form2()
         {
             InitializeComponent();
-
+            
 
             try
             {
@@ -186,54 +186,119 @@ namespace GestionListeCourses
 
             if (getIsListeInconnue(nomCourse))
             {
-                createNewListe(nomCourse);
+                try
+                {
+                    createNewListe(nomCourse);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                
                 labelListeCoursesInconnue.Text = "";
             }
 
-            int idCourses = getIdCourses(nomCourse);
-            int idIngredient = getIdIngredient(nomIngredient);
+            if (!getIsListeInconnue(nomCourse))
+            {
+                int idCourses = getIdCourses(nomCourse);
+                int idIngredient = getIdIngredient(nomIngredient);
 
-            insertNewIngredientListeCourse(idIngredient, idCourses);
-            displayIngredientsListeCourses(idCourses);
+                insertNewIngredientListeCourse(idIngredient, idCourses);
+                displayIngredientsListeCourses(idCourses);
+            } 
         }
 
 
         private void createNewListe(String nomCourse)
         {
-            MySqlConnection cnn = getCnn();
+            if (nomCourse != "")
+            {
+                MySqlConnection cnn = getCnn();
+                DateTime dateDuJour = DateTime.Now;
 
-            cnn.Open();
+                cnn.Open();
 
-            string query = "INSERT INTO course values ('', @nomCourse);";
-            MySqlCommand command = new MySqlCommand(query, cnn);
-            command.Parameters.AddWithValue("@nomCourse", nomCourse);
-            int rowsAffected = command.ExecuteNonQuery();
+                string query = "INSERT INTO course values ('', @nomCourse);";
+                MySqlCommand command = new MySqlCommand(query, cnn);
+                command.Parameters.AddWithValue("@nomCourse", nomCourse);
+                int rowsAffected = command.ExecuteNonQuery();
 
-            cnn.Close();
+                cnn.Close();
+
+                //insertIntoDateCourses(cnn, dateDuJour);
+            }
+            else
+            {
+                throw new Exception("Veuillez renseigner un nom de liste");
+            }
         }
 
 
         private void insertNewIngredientListeCourse(int idIngredient, int idCourses)
         {
-            String nomIngredient = GetNomSelectedIngredient(dgvIngredient);
 
-            if (GetNomSelectedIngredient(dgvListeCourses) != nomIngredient)
+            if (!checkIfIngredientIsInListeCourses(idIngredient, idCourses))
             {
                 MySqlConnection cnn = getCnn();
+                DateTime dateDuJour = DateTime.Now;
 
-                cnn.Open();
-
-                string query = "INSERT INTO faire values (@idIngredient, @idCourses, '');";
-                MySqlCommand command = new MySqlCommand(query, cnn);
-                command.Parameters.AddWithValue("@idIngredient", idIngredient);
-                command.Parameters.AddWithValue("@idCourses", idCourses);
-                int rowsAffected = command.ExecuteNonQuery();
-
-                cnn.Close();
+                insertIntoFaire(cnn, idIngredient, idCourses, dateDuJour);
             } else
             {
                 MessageBox.Show("Aliment déjà présent");
             }
+        }
+
+        private void insertIntoFaire(MySqlConnection cnn, int idIngredient, int idCourses, DateTime dateDuJour)
+        {
+            cnn.Open();
+
+            string query = "INSERT INTO faire values (@idIngredient, @idCourses, @dateDuJour);";
+            MySqlCommand command = new MySqlCommand(query, cnn);
+            command.Parameters.AddWithValue("@idIngredient", idIngredient);
+            command.Parameters.AddWithValue("@idCourses", idCourses);
+            command.Parameters.AddWithValue("@dateDuJour", dateDuJour);
+            int rowsAffected = command.ExecuteNonQuery();
+
+            cnn.Close();
+        }
+
+        private void insertIntoDateCourses(MySqlConnection cnn, DateTime dateDuJour)
+        {
+            cnn.Open();
+
+            string query = "INSERT INTO date_courses values (@dateDuJour);";
+            MySqlCommand command = new MySqlCommand(query, cnn);
+            command.Parameters.AddWithValue("@dateDuJour", dateDuJour);
+            int rowsAffected = command.ExecuteNonQuery();
+
+            cnn.Close();
+        }
+
+        private bool checkIfIngredientIsInListeCourses(int idIngredient, int idCourses)
+        {
+            MySqlConnection cnn = getCnn();
+            bool isPresent = false;
+
+            cnn.Open();
+
+
+            string query = "SELECT id_ingredients FROM faire " +
+                "WHERE id_ingredients = @idIngredient AND id_course = @idCourses";
+            MySqlCommand command = new MySqlCommand(query, cnn);
+            command.Parameters.AddWithValue("@idIngredient", idIngredient);
+            command.Parameters.AddWithValue("@idCourses", idCourses);
+            MySqlDataReader reader = command.ExecuteReader();
+
+            if (reader.Read())
+            {
+                isPresent = true;
+            }
+            
+
+            cnn.Close();
+
+            return isPresent;   
         }
 
         private void deleteIngredientListeCourse(int idIngredient, int idCourses)
