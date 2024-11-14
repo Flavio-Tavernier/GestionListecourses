@@ -12,44 +12,17 @@ namespace GestionListeCourses
 {
     public partial class Form2 : Form
     {
-        string connectioString;
-        MySqlConnection cnn;
+        private ConnexionBDD cnn = new ConnexionBDD("server=localhost;Port=3306; database=gestion_courses;uid=root;pwd=\"\";");
         public Form2()
         {
             InitializeComponent();
             
-
-            try
-            {
-                string connectionString = "server=localhost;Port=3306; database=gestion_courses;uid=root;pwd=\"\";";
-                MySqlConnection cnn = new MySqlConnection(connectionString);
-
-                string query = "SELECT * FROM ingredients";
-
-                cnn.Open();
-
-                MySqlDataAdapter dataAdapter = new MySqlDataAdapter(query, cnn);
-
-                DataTable dataTable = new DataTable();
-
-                dataAdapter.Fill(dataTable);
-
-                dgvIngredient.DataSource = dataTable;
-
-                dgvIngredient.Columns[0].Visible = false;
-                dgvIngredient.Columns[1].Visible = false;
-
-                cnn.Close();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Can't open connection !" + ex);
-            }
-
+            this.cnn.SelectIngredients(dgvIngredient);
         }
 
         private void InitializeComponent()
         {
+            
             dgvIngredient = new DataGridView();
             dgvListeCourses = new DataGridView();
             btnAjout = new Button();
@@ -184,139 +157,31 @@ namespace GestionListeCourses
             String nomCourse = textBoxNomCourses.Text;
             String nomIngredient = GetNomSelectedIngredient(dgvIngredient);
 
-            if (getIsListeInconnue(nomCourse))
+            MessageBox.Show(this.GetIsListeInconnue(nomCourse).ToString());
+
+            if (this.GetIsListeInconnue(nomCourse))
             {
                 try
                 {
-                    createNewListe(nomCourse);
+                    this.cnn.CreateNewListe(nomCourse);
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
-                
+
                 labelListeCoursesInconnue.Text = "";
             }
 
-            if (!getIsListeInconnue(nomCourse))
+            if (!GetIsListeInconnue(nomCourse))
             {
-                int idCourses = getIdCourses(nomCourse);
-                int idIngredient = getIdIngredient(nomIngredient);
+                int idCourses = this.cnn.SelectIdCoursesByNom(nomCourse);
+                int idIngredient = this.cnn.SelectIdIngredientByNom(nomIngredient);
 
-                insertNewIngredientListeCourse(idIngredient, idCourses);
-                displayIngredientsListeCourses(idCourses);
-            } 
-        }
-
-
-        private void createNewListe(String nomCourse)
-        {
-            if (nomCourse != "")
-            {
-                MySqlConnection cnn = getCnn();
-                DateTime dateDuJour = DateTime.Now;
-
-                cnn.Open();
-
-                string query = "INSERT INTO course values ('', @nomCourse);";
-                MySqlCommand command = new MySqlCommand(query, cnn);
-                command.Parameters.AddWithValue("@nomCourse", nomCourse);
-                int rowsAffected = command.ExecuteNonQuery();
-
-                cnn.Close();
-
-                //insertIntoDateCourses(cnn, dateDuJour);
-            }
-            else
-            {
-                throw new Exception("Veuillez renseigner un nom de liste");
+                this.cnn.InsertNewIngredientListeCourses(idIngredient, idCourses);
+                this.cnn.SelectIngredientsListeCoursesById(idCourses, dgvListeCourses);
             }
         }
-
-
-        private void insertNewIngredientListeCourse(int idIngredient, int idCourses)
-        {
-
-            if (!checkIfIngredientIsInListeCourses(idIngredient, idCourses))
-            {
-                MySqlConnection cnn = getCnn();
-                DateTime dateDuJour = DateTime.Now;
-
-                insertIntoFaire(cnn, idIngredient, idCourses, dateDuJour);
-            } else
-            {
-                MessageBox.Show("Aliment déjà présent");
-            }
-        }
-
-        private void insertIntoFaire(MySqlConnection cnn, int idIngredient, int idCourses, DateTime dateDuJour)
-        {
-            cnn.Open();
-
-            string query = "INSERT INTO faire values (@idIngredient, @idCourses, @dateDuJour);";
-            MySqlCommand command = new MySqlCommand(query, cnn);
-            command.Parameters.AddWithValue("@idIngredient", idIngredient);
-            command.Parameters.AddWithValue("@idCourses", idCourses);
-            command.Parameters.AddWithValue("@dateDuJour", dateDuJour);
-            int rowsAffected = command.ExecuteNonQuery();
-
-            cnn.Close();
-        }
-
-        private void insertIntoDateCourses(MySqlConnection cnn, DateTime dateDuJour)
-        {
-            cnn.Open();
-
-            string query = "INSERT INTO date_courses values (@dateDuJour);";
-            MySqlCommand command = new MySqlCommand(query, cnn);
-            command.Parameters.AddWithValue("@dateDuJour", dateDuJour);
-            int rowsAffected = command.ExecuteNonQuery();
-
-            cnn.Close();
-        }
-
-        private bool checkIfIngredientIsInListeCourses(int idIngredient, int idCourses)
-        {
-            MySqlConnection cnn = getCnn();
-            bool isPresent = false;
-
-            cnn.Open();
-
-
-            string query = "SELECT id_ingredients FROM faire " +
-                "WHERE id_ingredients = @idIngredient AND id_course = @idCourses";
-            MySqlCommand command = new MySqlCommand(query, cnn);
-            command.Parameters.AddWithValue("@idIngredient", idIngredient);
-            command.Parameters.AddWithValue("@idCourses", idCourses);
-            MySqlDataReader reader = command.ExecuteReader();
-
-            if (reader.Read())
-            {
-                isPresent = true;
-            }
-            
-
-            cnn.Close();
-
-            return isPresent;   
-        }
-
-        private void deleteIngredientListeCourse(int idIngredient, int idCourses)
-        {
-            MySqlConnection cnn = getCnn();
-
-            cnn.Open();
-
-            string query = "DELETE FROM faire WHERE id_ingredients = @idIngredient AND id_course = @idCourses;";
-            MySqlCommand command = new MySqlCommand(query, cnn);
-            command.Parameters.AddWithValue("@idIngredient", idIngredient);
-            command.Parameters.AddWithValue("@idCourses", idCourses);
-            int rowsAffected = command.ExecuteNonQuery();
-
-            cnn.Close();
-
-        }
-
 
         private static String GetNomSelectedIngredient(DataGridView dgv)
         {
@@ -328,86 +193,13 @@ namespace GestionListeCourses
             int rowIndex = dgv.CurrentCell.RowIndex;
             int columnIndex = dgv.CurrentCell.ColumnIndex;
             return dgv.Rows[rowIndex].Cells[columnIndex].Value.ToString();
-
-        }
-
-
-        private int getIdCourses(String nomCourse)
-        {
-            MySqlConnection cnn = getCnn();
-
-            cnn.Open();
-
-            string query = "SELECT id FROM course where nom = @nomCourses;";
-            MySqlCommand command = new MySqlCommand(query, cnn);
-            command.Parameters.AddWithValue("@nomCourses", nomCourse);
-            MySqlDataReader reader = command.ExecuteReader();
-
-            reader.Read();
-            int idCourses = reader.GetInt32(0);
-
-            cnn.Close();
-
-            return idCourses;
-        }
-
-
-
-
-        private int getIdIngredient(String nomIngredient)
-        {
-            MySqlConnection cnn = getCnn();
-
-            cnn.Open();
-
-            string query = "SELECT id FROM ingredients where nom = @nomIngredient;";
-            MySqlCommand command = new MySqlCommand(query, cnn);
-            command.Parameters.AddWithValue("@nomIngredient", nomIngredient);
-            MySqlDataReader reader = command.ExecuteReader();
-
-            reader.Read();
-            int idIngredient = reader.GetInt32(0);
-
-            cnn.Close();
-
-            return idIngredient;
-        }
-
-
-        private void displayIngredientsListeCourses(int idCourses)
-        {
-            MySqlConnection cnn = getCnn();
-
-            string query = "SELECT nom FROM ingredients " +
-                "inner join faire on ingredients.id = faire.id_ingredients " +
-                "where faire.id_course = " + idCourses;
-
-            cnn.Open();
-
-            MySqlDataAdapter dataAdapter = new MySqlDataAdapter(query, cnn);
-
-            DataTable dataTable = new DataTable();
-
-            dataAdapter.Fill(dataTable);
-
-            dgvListeCourses.DataSource = dataTable;
-
-            cnn.Close();
-        }
-
-
-
-        private MySqlConnection getCnn()
-        {
-            string connectionString = "server=localhost;Port=3306; database=gestion_courses;uid=root;pwd=\"\";";
-            return new MySqlConnection(connectionString);
         }
 
         private void textBoxNomCourses_TextChanged(object sender, EventArgs e)
         {
             String nomCourse = textBoxNomCourses.Text;
 
-            Boolean isListeInconnue = getIsListeInconnue(nomCourse);
+            Boolean isListeInconnue = GetIsListeInconnue(nomCourse);
 
             if (isListeInconnue)
             {
@@ -417,37 +209,15 @@ namespace GestionListeCourses
             else
             {
                 labelListeCoursesInconnue.Text = "";
-                int idCourses = getIdCourses(nomCourse);
-                displayIngredientsListeCourses(idCourses);
-
+                int idCourses = this.cnn.SelectIdCoursesByNom(nomCourse);
+                this.cnn.SelectIngredientsListeCoursesById(idCourses, dgvListeCourses);
             }
         }
 
-
-
-        private Boolean getIsListeInconnue(String nomCourse)
+        private Boolean GetIsListeInconnue(String nomCourse)
         {
-            MySqlConnection cnn = getCnn();
-
-            cnn.Open();
-
-            string query = "SELECT id FROM course where nom = @nomCourses;";
-            MySqlCommand command = new MySqlCommand(query, cnn);
-            command.Parameters.AddWithValue("@nomCourses", nomCourse);
-            MySqlDataReader reader = command.ExecuteReader();
-
-            Boolean isListeInconnue = true;
-
-            if (reader.Read())
-            {
-                isListeInconnue = reader.IsDBNull(0);
-            }
-
-
-
-            cnn.Close();
-
-            return isListeInconnue;
+            MessageBox.Show(this.cnn.SelectIdCoursesByNom(nomCourse).ToString());
+            return this.cnn.SelectIdCoursesByNom(nomCourse) != -1;
         }
 
         private void btnSupprimer_Click(object sender, EventArgs e)
@@ -455,11 +225,11 @@ namespace GestionListeCourses
             String nomCourse = textBoxNomCourses.Text;
             String nomIngredient = GetNomSelectedIngredient(dgvListeCourses);
 
-            int idCourses = getIdCourses(nomCourse);
-            int idIngredient = getIdIngredient(nomIngredient);
+            int idCourses = this.cnn.SelectIdCoursesByNom(nomCourse);
+            int idIngredient = this.cnn.SelectIdIngredientByNom(nomIngredient);
 
-            deleteIngredientListeCourse(idIngredient, idCourses);
-            displayIngredientsListeCourses(idCourses);
+            this.cnn.DeleteIngredientListeCourses(idIngredient, idCourses);
+            this.cnn.SelectIngredientsListeCoursesById(idCourses, dgvListeCourses);
         }
     }
 }
