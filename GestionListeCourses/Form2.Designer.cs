@@ -30,5 +30,6 @@ namespace GestionListeCourses
         private TextBox textBoxNomCourses;
         private Label labelInputNomListeCourses;
         private Label labelListeCoursesInconnue;
+        private Button btnRecherche;
     }
 }

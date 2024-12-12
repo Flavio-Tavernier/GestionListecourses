@@ -7,17 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GestionListeCourses
+namespace GestionListeCourses.modele
 {
     internal class ConnexionBDD
     {
         private string connectionString;
         private MySqlConnection cnn;
 
-        public ConnexionBDD(String connectionString)
+        public ConnexionBDD(string connectionString)
         {
             this.connectionString = connectionString;
-            this.cnn = this.GetCnnInstance();
+            cnn = GetCnnInstance();
         }
 
 
@@ -25,10 +25,10 @@ namespace GestionListeCourses
         {
             if (cnn == null)
             {
-                this.cnn = new MySqlConnection(connectionString);
+                cnn = new MySqlConnection(connectionString);
             }
 
-            return this.cnn;
+            return cnn;
         }
 
 
@@ -37,26 +37,28 @@ namespace GestionListeCourses
         {
             string query = "SELECT nom FROM ingredients";
 
-            this.cnn.Open();
-            MySqlDataAdapter dataAdapter = new MySqlDataAdapter(query, this.cnn);
+            cnn.Open();
+            MySqlDataAdapter dataAdapter = new MySqlDataAdapter(query, cnn);
             DataTable dataTable = new DataTable();
             dataAdapter.Fill(dataTable);
 
-            this.cnn.Close();
+            cnn.Close();
 
             return dataTable;
         }
+
+
 
 
         public bool RechercherListeCourse(string nomCourse)
         {
             bool listeExiste = false;
 
-            this.cnn.Open();
+            cnn.Open();
 
             string query = "SELECT id FROM courses " +
                 "WHERE nom = @nomCourse";
-            MySqlCommand command = new MySqlCommand(query, this.cnn);
+            MySqlCommand command = new MySqlCommand(query, cnn);
             command.Parameters.AddWithValue("@nomCourse", nomCourse);
             MySqlDataReader reader = command.ExecuteReader();
 
@@ -65,13 +67,30 @@ namespace GestionListeCourses
                 listeExiste = true;
             }
 
-            this.cnn.Close();
+            cnn.Close();
             return listeExiste;
         }
 
 
 
+        public DataTable RecupererListeCourse(string nomCourse)
+        {
+            string query = "SELECT ingredients.nom " +
+                "FROM ingredients " +
+                "inner join faire_ses_courses on faire_ses_courses.id_ingredient = ingredients.id_ingredient " +
+                "inner join courses on courses.id_courses = faire_ses_courses.id_courses " +
+                "WHERE faire_ses_courses.date_du_jour = CURDATE() " +
+                "AND courses.nom = '" + nomCourse + "';";
 
+            cnn.Open();
+            MySqlDataAdapter dataAdapter = new MySqlDataAdapter(query, cnn);
+            DataTable dataTable = new DataTable();
+            dataAdapter.Fill(dataTable);
+
+            cnn.Close();
+
+            return dataTable;
+        }
 
 
 
@@ -122,22 +141,22 @@ namespace GestionListeCourses
 
 
 
-        public void CreateNewListe(String nomCourses)
+        public void CreateNewListe(string nomCourses)
         {
             if (nomCourses != "")
             {
                 DateTime dateDuJour = DateTime.Now;
 
-                this.cnn.Open();
+                cnn.Open();
 
                 string query = "INSERT INTO courses values ('', @nomCourses);";
 
-                MySqlCommand command = new MySqlCommand(query, this.cnn);
-                
+                MySqlCommand command = new MySqlCommand(query, cnn);
+
                 command.Parameters.AddWithValue("@nomCourses", nomCourses);
                 command.ExecuteNonQuery();
 
-                this.cnn.Close();
+                cnn.Close();
 
                 //InsertIntoDateCourses(dateDuJour);
             }
@@ -168,11 +187,11 @@ namespace GestionListeCourses
         {
             bool isPresent = false;
 
-            this.cnn.Open();
+            cnn.Open();
 
             string query = "SELECT id_ingredients FROM faire_ses_courses " +
                 "WHERE id_ingredient = @idIngredient AND id_course = @idCourses";
-            MySqlCommand command = new MySqlCommand(query, this.cnn);
+            MySqlCommand command = new MySqlCommand(query, cnn);
             command.Parameters.AddWithValue("@idIngredient", idIngredient);
             command.Parameters.AddWithValue("@idCourses", idCourses);
             MySqlDataReader reader = command.ExecuteReader();
@@ -182,60 +201,60 @@ namespace GestionListeCourses
                 isPresent = true;
             }
 
-            this.cnn.Close();
+            cnn.Close();
             return isPresent;
         }
 
 
         public void InsertIntoFaire(int idIngredient, int idCourses, DateTime dateDuJour)
         {
-            this.cnn.Open();
+            cnn.Open();
 
             string query = "INSERT INTO faire_ses_courses values (@idIngredient, @idCourses, @dateDuJour);";
-            MySqlCommand command = new MySqlCommand(query, this.cnn);
+            MySqlCommand command = new MySqlCommand(query, cnn);
             command.Parameters.AddWithValue("@idIngredient", idIngredient);
             command.Parameters.AddWithValue("@idCourses", idCourses);
             command.Parameters.AddWithValue("@dateDuJour", dateDuJour);
             command.ExecuteNonQuery();
 
-            this.cnn.Close();
+            cnn.Close();
         }
 
 
         public void InsertIntoDateCourses(DateTime dateDuJour)
         {
-            this.cnn.Open();
+            cnn.Open();
 
             string query = "INSERT INTO date_courses values (@dateDuJour);";
-            MySqlCommand command = new MySqlCommand(query, this.cnn);
+            MySqlCommand command = new MySqlCommand(query, cnn);
             command.Parameters.AddWithValue("@dateDuJour", dateDuJour);
             command.ExecuteNonQuery();
 
-            this.cnn.Close();
+            cnn.Close();
         }
 
         public void DeleteIngredientListeCourses(int idIngredient, int idCourses)
         {
-            this.cnn.Open();
+            cnn.Open();
 
             string query = "DELETE FROM faire_ses_courses WHERE id_ingredient = @idIngredient AND id_courses = @idCourses;";
-            MySqlCommand command = new MySqlCommand(query, this.cnn);
+            MySqlCommand command = new MySqlCommand(query, cnn);
             command.Parameters.AddWithValue("@idIngredient", idIngredient);
             command.Parameters.AddWithValue("@idCourses", idCourses);
             command.ExecuteNonQuery();
 
-            this.cnn.Close();
+            cnn.Close();
         }
 
 
-        public int SelectIdCoursesByNom(String nomCourse)
+        public int SelectIdCoursesByNom(string nomCourse)
         {
             int idCourses = 0;
 
-            this.cnn.Open();
+            cnn.Open();
 
             string query = "SELECT id_courses FROM courses where nom = @nomCourses;";
-            MySqlCommand command = new MySqlCommand(query, this.cnn);
+            MySqlCommand command = new MySqlCommand(query, cnn);
             command.Parameters.AddWithValue("@nomCourses", nomCourse);
             MySqlDataReader reader = command.ExecuteReader();
 
@@ -243,8 +262,8 @@ namespace GestionListeCourses
             {
                 idCourses = reader.GetInt32(0);
             }
-                
-            this.cnn.Close();
+
+            cnn.Close();
 
             return idCourses;
         }
@@ -252,13 +271,13 @@ namespace GestionListeCourses
 
 
 
-        public int SelectIdIngredientByNom(String nomIngredient)
+        public int SelectIdIngredientByNom(string nomIngredient)
         {
             int idIngredient = 0;
-            this.cnn.Open();
+            cnn.Open();
 
             string query = "SELECT id_ingredient FROM ingredients where nom = @nomIngredient;";
-            MySqlCommand command = new MySqlCommand(query, this.cnn);
+            MySqlCommand command = new MySqlCommand(query, cnn);
             command.Parameters.AddWithValue("@nomIngredient", nomIngredient);
             MySqlDataReader reader = command.ExecuteReader();
 
@@ -267,7 +286,7 @@ namespace GestionListeCourses
                 idIngredient = reader.GetInt32(0);
             }
 
-            this.cnn.Close();
+            cnn.Close();
 
             return idIngredient;
         }
@@ -281,21 +300,21 @@ namespace GestionListeCourses
                 "inner join faire_ses_courses on ingredients.id_ingredient = faire_ses_courses.id_ingredient " +
                 "where faire_ses_courses.id_courses = " + idCourses;
 
-            this.cnn.Open();
+            cnn.Open();
 
-            MySqlDataAdapter dataAdapter = new MySqlDataAdapter(query, this.cnn);
+            MySqlDataAdapter dataAdapter = new MySqlDataAdapter(query, cnn);
 
             DataTable dataTable = new DataTable();
             dataAdapter.Fill(dataTable);
             dgvListeCourses.DataSource = dataTable;
 
-            this.cnn.Close();
+            cnn.Close();
         }
 
 
 
 
-        
+
 
 
 

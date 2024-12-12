@@ -28,7 +28,6 @@ C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\b
 C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\bin\Release\net6.0-windows\runtimes\browser\lib\net6.0\System.Text.Encodings.Web.dll
 C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\bin\Release\net6.0-windows\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\obj\Release\net6.0-windows\GestionListeCourses.csproj.AssemblyReference.cache
-C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\obj\Release\net6.0-windows\GestionListeCourses.Form1.resources
 C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\obj\Release\net6.0-windows\GestionListeCourses.Form2.resources
 C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\obj\Release\net6.0-windows\GestionListeCourses.csproj.GenerateResource.cache
 C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\obj\Release\net6.0-windows\GestionListeCourses.GeneratedMSBuildEditorConfig.editorconfig

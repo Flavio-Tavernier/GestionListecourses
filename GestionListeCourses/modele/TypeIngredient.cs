@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GestionListeCourses
+namespace GestionListeCourses.modele
 {
     internal class TypeIngredient
     {
@@ -18,9 +18,9 @@ namespace GestionListeCourses
         }
 
 
-        public int GetIdType() 
-        { 
-            return this.idType; 
+        public int GetIdType()
+        {
+            return idType;
         }
         public void SetIdType(int idType)
         {
@@ -29,7 +29,7 @@ namespace GestionListeCourses
 
         public string GetNomType()
         {
-            return this.nomType;
+            return nomType;
         }
         public void SetNomType(string nomType)
         {

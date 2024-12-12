@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GestionListeCourses
+namespace GestionListeCourses.modele
 {
     internal class Ingredient
     {
@@ -34,23 +34,26 @@ namespace GestionListeCourses
 
 
 
+        public void miseAJourListeIngredients(DataTable listeCourse)
+        {
+
+        }
 
 
 
-
-        public int GetIngredient() 
-        {  
-            return this.idIngredient;
+        public int GetIngredient()
+        {
+            return idIngredient;
         }
         public void SetIdIngredient(int id)
         {
-            this.idIngredient = id;
+            idIngredient = id;
         }
 
 
         public string GetNomIngredient()
         {
-            return this.nomIngredient;
+            return nomIngredient;
         }
         public void SetNomIngredient(string nomIngredient)
         {

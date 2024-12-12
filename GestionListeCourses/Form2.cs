@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GestionListeCourses.modele;
 using MySql.Data.MySqlClient;
 namespace GestionListeCourses
 {
@@ -18,14 +19,13 @@ namespace GestionListeCourses
             InitializeComponent();
 
             Ingredient.AfficherListeIngredients(dgvIngredient);
-
+            
 
 
         }
 
         private void InitializeComponent()
         {
-            
             dgvIngredient = new DataGridView();
             dgvListeCourses = new DataGridView();
             btnAjout = new Button();
@@ -35,6 +35,7 @@ namespace GestionListeCourses
             textBoxNomCourses = new TextBox();
             labelInputNomListeCourses = new Label();
             labelListeCoursesInconnue = new Label();
+            this.btnRecherche = new Button();
             ((ISupportInitialize)dgvIngredient).BeginInit();
             ((ISupportInitialize)dgvListeCourses).BeginInit();
             SuspendLayout();
@@ -127,9 +128,20 @@ namespace GestionListeCourses
             labelListeCoursesInconnue.Size = new Size(0, 15);
             labelListeCoursesInconnue.TabIndex = 8;
             // 
+            // btnRecherche
+            // 
+            this.btnRecherche.Location = new Point(735, 107);
+            this.btnRecherche.Name = "btnRecherche";
+            this.btnRecherche.Size = new Size(75, 23);
+            this.btnRecherche.TabIndex = 9;
+            this.btnRecherche.Text = "Recherche";
+            this.btnRecherche.UseVisualStyleBackColor = true;
+            this.btnRecherche.Click += this.btnRecherche_Click;
+            // 
             // Form2
             // 
             ClientSize = new Size(860, 512);
+            Controls.Add(this.btnRecherche);
             Controls.Add(labelListeCoursesInconnue);
             Controls.Add(labelInputNomListeCourses);
             Controls.Add(textBoxNomCourses);
@@ -166,7 +178,7 @@ namespace GestionListeCourses
             {
                 try
                 {
-                    this.cnn.CreateNewListe(nomCourse);
+                    cnn.CreateNewListe(nomCourse);
                 }
                 catch (Exception ex)
                 {
@@ -178,11 +190,11 @@ namespace GestionListeCourses
 
             if (!GetIsListeInconnue(nomCourse))
             {
-                int idCourses = this.cnn.SelectIdCoursesByNom(nomCourse);
-                int idIngredient = this.cnn.SelectIdIngredientByNom(nomIngredient);
+                int idCourses = cnn.SelectIdCoursesByNom(nomCourse);
+                int idIngredient = cnn.SelectIdIngredientByNom(nomIngredient);
 
-                this.cnn.InsertNewIngredientListeCourses(idIngredient, idCourses);
-                this.cnn.SelectIngredientsListeCoursesById(idCourses, dgvListeCourses);
+                cnn.InsertNewIngredientListeCourses(idIngredient, idCourses);
+                cnn.SelectIngredientsListeCoursesById(idCourses, dgvListeCourses);
             }
         }
 
@@ -192,7 +204,7 @@ namespace GestionListeCourses
             {
                 return null;
             }
-            
+
             int rowIndex = dgv.CurrentCell.RowIndex;
             int columnIndex = dgv.CurrentCell.ColumnIndex;
             return dgv.Rows[rowIndex].Cells[columnIndex].Value.ToString();
@@ -200,27 +212,27 @@ namespace GestionListeCourses
 
         private void textBoxNomCourses_TextChanged(object sender, EventArgs e)
         {
-            String nomCourse = textBoxNomCourses.Text;
+            //String nomCourse = textBoxNomCourses.Text;
 
-            Boolean isListeInconnue = GetIsListeInconnue(nomCourse);
+            //Boolean isListeInconnue = GetIsListeInconnue(nomCourse);
 
-            if (isListeInconnue)
-            {
-                labelListeCoursesInconnue.Text = "Liste Inconnue";
-                dgvListeCourses.DataSource = "";
-            }
-            else
-            {
-                labelListeCoursesInconnue.Text = "";
-                int idCourses = this.cnn.SelectIdCoursesByNom(nomCourse);
-                this.cnn.SelectIngredientsListeCoursesById(idCourses, dgvListeCourses);
-            }
+            //if (isListeInconnue)
+            //{
+            //    labelListeCoursesInconnue.Text = "Liste Inconnue";
+            //    dgvListeCourses.DataSource = "";
+            //}
+            //else
+            //{
+            //    labelListeCoursesInconnue.Text = "";
+            //    int idCourses = cnn.SelectIdCoursesByNom(nomCourse);
+            //    cnn.SelectIngredientsListeCoursesById(idCourses, dgvListeCourses);
+            //}
         }
 
         private Boolean GetIsListeInconnue(String nomCourse)
         {
-            MessageBox.Show(this.cnn.SelectIdCoursesByNom(nomCourse).ToString());
-            return this.cnn.SelectIdCoursesByNom(nomCourse) != -1;
+            MessageBox.Show(cnn.SelectIdCoursesByNom(nomCourse).ToString());
+            return cnn.SelectIdCoursesByNom(nomCourse) != -1;
         }
 
         private void btnSupprimer_Click(object sender, EventArgs e)
@@ -228,11 +240,18 @@ namespace GestionListeCourses
             String nomCourse = textBoxNomCourses.Text;
             String nomIngredient = GetNomSelectedIngredient(dgvListeCourses);
 
-            int idCourses = this.cnn.SelectIdCoursesByNom(nomCourse);
-            int idIngredient = this.cnn.SelectIdIngredientByNom(nomIngredient);
+            int idCourses = cnn.SelectIdCoursesByNom(nomCourse);
+            int idIngredient = cnn.SelectIdIngredientByNom(nomIngredient);
 
-            this.cnn.DeleteIngredientListeCourses(idIngredient, idCourses);
-            this.cnn.SelectIngredientsListeCoursesById(idCourses, dgvListeCourses);
+            cnn.DeleteIngredientListeCourses(idIngredient, idCourses);
+            cnn.SelectIngredientsListeCoursesById(idCourses, dgvListeCourses);
+        }
+
+        private void btnRecherche_Click(object sender, EventArgs e)
+        {
+            String nomCourse = textBoxNomCourses.Text;
+
+            Course.AfficherListeCourse(nomCourse, dgvListeCourses);
         }
     }
 }

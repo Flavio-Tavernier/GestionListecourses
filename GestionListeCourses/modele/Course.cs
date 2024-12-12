@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GestionListeCourses
+namespace GestionListeCourses.modele
 {
     internal class Course
     {
@@ -13,42 +14,43 @@ namespace GestionListeCourses
         private string nomCourse;
         private DateTime dateDuJour;
 
-        public Course(int idCourse, string nomCourse, DateTime dateDujour) 
+        public Course(int idCourse, string nomCourse, DateTime dateDujour)
         {
             this.idCourse = idCourse;
             this.nomCourse = nomCourse;
-            this.dateDuJour = dateDujour;
-        }
-
-
-
-        public static void RecupererListeCourse(string nom, DateTime dateDuJour)
-        {
-            if (cnn.RechercherListeCourse(nom))
-            {
-
-            }
+            dateDuJour = dateDujour;
         }
 
 
 
 
+        public static void AfficherListeCourse(string nomCourse, DataGridView dgvListeCourses)
+        { 
+            DataTable listeCourse = cnn.RecupererListeCourse(nomCourse);
+            
+            dgvListeCourses.DataSource = listeCourse;
+            dgvListeCourses.Columns[0].Visible = true;
+        }
 
 
 
 
-        public int GetIdCourse() 
+
+
+
+
+        public int GetIdCourse()
         {
-            return this.idCourse;
+            return idCourse;
         }
         public void SetIdCourse(int idCourse)
         {
             this.idCourse = idCourse;
         }
 
-        public string GetNomCourse() 
+        public string GetNomCourse()
         {
-            return this.nomCourse;
+            return nomCourse;
         }
         public void SetNomCourse(string nomCourse)
         {
@@ -57,7 +59,7 @@ namespace GestionListeCourses
 
         public DateTime GetDateDuJour()
         {
-            return this.dateDuJour;
+            return dateDuJour;
         }
         public void SetDateDuJour(DateTime dateDuJour)
         {
