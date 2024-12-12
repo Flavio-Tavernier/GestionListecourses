@@ -16,8 +16,11 @@ namespace GestionListeCourses
         public Form2()
         {
             InitializeComponent();
-            
-            this.cnn.SelectIngredients(dgvIngredient);
+
+            Ingredient.AfficherListeIngredients(dgvIngredient);
+
+
+
         }
 
         private void InitializeComponent()

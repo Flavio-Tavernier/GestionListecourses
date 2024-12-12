@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,22 +32,92 @@ namespace GestionListeCourses
         }
 
 
-        public void SelectIngredients(DataGridView dgvIngredient)
+
+        public DataTable ChercherIngredients()
         {
-            string query = "SELECT * FROM ingredients";
+            string query = "SELECT nom FROM ingredients";
 
             this.cnn.Open();
             MySqlDataAdapter dataAdapter = new MySqlDataAdapter(query, this.cnn);
             DataTable dataTable = new DataTable();
             dataAdapter.Fill(dataTable);
 
-            dgvIngredient.DataSource = dataTable;
+            this.cnn.Close();
 
-            dgvIngredient.Columns[0].Visible = false;
-            dgvIngredient.Columns[1].Visible = false;
+            return dataTable;
+        }
+
+
+        public bool RechercherListeCourse(string nomCourse)
+        {
+            bool listeExiste = false;
+
+            this.cnn.Open();
+
+            string query = "SELECT id FROM courses " +
+                "WHERE nom = @nomCourse";
+            MySqlCommand command = new MySqlCommand(query, this.cnn);
+            command.Parameters.AddWithValue("@nomCourse", nomCourse);
+            MySqlDataReader reader = command.ExecuteReader();
+
+            if (reader.Read())
+            {
+                listeExiste = true;
+            }
 
             this.cnn.Close();
+            return listeExiste;
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //public void SelectIngredients(DataGridView dgvIngredient)
+        //{
+        //    string query = "SELECT * FROM ingredients";
+
+        //    this.cnn.Open();
+        //    MySqlDataAdapter dataAdapter = new MySqlDataAdapter(query, this.cnn);
+        //    DataTable dataTable = new DataTable();
+        //    dataAdapter.Fill(dataTable);
+
+        //    dgvIngredient.DataSource = dataTable;
+
+        //    dgvIngredient.Columns[0].Visible = false;
+        //    dgvIngredient.Columns[1].Visible = false;
+
+        //    this.cnn.Close();
+        //}
 
 
 
