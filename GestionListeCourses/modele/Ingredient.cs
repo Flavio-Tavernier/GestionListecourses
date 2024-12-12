@@ -36,8 +36,15 @@ namespace GestionListeCourses.modele
 
         public void miseAJourListeIngredients(DataTable listeCourse)
         {
-
+                
         }
+
+
+
+
+
+
+
 
 
 
