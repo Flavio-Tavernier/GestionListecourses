@@ -19,13 +19,14 @@ namespace GestionListeCourses
             InitializeComponent();
 
             Ingredient.AfficherListeIngredients(dgvIngredient);
-            
+
 
 
         }
 
         private void InitializeComponent()
         {
+            ComponentResourceManager resources = new ComponentResourceManager(typeof(Form2));
             dgvIngredient = new DataGridView();
             dgvListeCourses = new DataGridView();
             btnAjout = new Button();
@@ -35,7 +36,8 @@ namespace GestionListeCourses
             textBoxNomCourses = new TextBox();
             labelInputNomListeCourses = new Label();
             labelListeCoursesInconnue = new Label();
-            this.btnRecherche = new Button();
+            btnRecherche = new Button();
+            this.btnSupprIngredientsListecourses = new Button();
             ((ISupportInitialize)dgvIngredient).BeginInit();
             ((ISupportInitialize)dgvListeCourses).BeginInit();
             SuspendLayout();
@@ -66,21 +68,21 @@ namespace GestionListeCourses
             // 
             // btnAjout
             // 
+            btnAjout.BackgroundImage = (Image)resources.GetObject("btnAjout.BackgroundImage");
             btnAjout.Location = new Point(392, 218);
             btnAjout.Name = "btnAjout";
             btnAjout.Size = new Size(75, 23);
             btnAjout.TabIndex = 2;
-            btnAjout.Text = "----->";
             btnAjout.UseVisualStyleBackColor = true;
             btnAjout.Click += btnAjout_Click;
             // 
             // btnSupprimer
             // 
+            btnSupprimer.BackgroundImage = (Image)resources.GetObject("btnSupprimer.BackgroundImage");
             btnSupprimer.Location = new Point(392, 317);
             btnSupprimer.Name = "btnSupprimer";
             btnSupprimer.Size = new Size(75, 23);
             btnSupprimer.TabIndex = 3;
-            btnSupprimer.Text = "<-----";
             btnSupprimer.UseVisualStyleBackColor = true;
             btnSupprimer.Click += btnSupprimer_Click;
             // 
@@ -130,18 +132,29 @@ namespace GestionListeCourses
             // 
             // btnRecherche
             // 
-            this.btnRecherche.Location = new Point(735, 107);
-            this.btnRecherche.Name = "btnRecherche";
-            this.btnRecherche.Size = new Size(75, 23);
-            this.btnRecherche.TabIndex = 9;
-            this.btnRecherche.Text = "Recherche";
-            this.btnRecherche.UseVisualStyleBackColor = true;
-            this.btnRecherche.Click += this.btnRecherche_Click;
+            btnRecherche.BackgroundImage = (Image)resources.GetObject("btnRecherche.BackgroundImage");
+            btnRecherche.Location = new Point(735, 107);
+            btnRecherche.Name = "btnRecherche";
+            btnRecherche.Size = new Size(75, 23);
+            btnRecherche.TabIndex = 9;
+            btnRecherche.UseVisualStyleBackColor = true;
+            btnRecherche.Click += btnRecherche_Click;
+            // 
+            // btnSupprIngredientsListecourses
+            // 
+            this.btnSupprIngredientsListecourses.BackgroundImage = (Image)resources.GetObject("btnSupprIngredientsListecourses.BackgroundImage");
+            this.btnSupprIngredientsListecourses.Location = new Point(404, 133);
+            this.btnSupprIngredientsListecourses.Name = "btnSupprIngredientsListecourses";
+            this.btnSupprIngredientsListecourses.Size = new Size(50, 53);
+            this.btnSupprIngredientsListecourses.TabIndex = 10;
+            this.btnSupprIngredientsListecourses.UseVisualStyleBackColor = true;
+            this.btnSupprIngredientsListecourses.Click += this.btnSupprIngredientsListecourses_Click;
             // 
             // Form2
             // 
             ClientSize = new Size(860, 512);
-            Controls.Add(this.btnRecherche);
+            Controls.Add(this.btnSupprIngredientsListecourses);
+            Controls.Add(btnRecherche);
             Controls.Add(labelListeCoursesInconnue);
             Controls.Add(labelInputNomListeCourses);
             Controls.Add(textBoxNomCourses);
@@ -172,8 +185,6 @@ namespace GestionListeCourses
             String nomCourse = textBoxNomCourses.Text;
             String nomIngredient = GetNomSelectedIngredient(dgvIngredient);
 
-            MessageBox.Show(this.GetIsListeInconnue(nomCourse).ToString());
-
             if (this.GetIsListeInconnue(nomCourse))
             {
                 try
@@ -188,14 +199,12 @@ namespace GestionListeCourses
                 labelListeCoursesInconnue.Text = "";
             }
 
-            if (!GetIsListeInconnue(nomCourse))
-            {
-                int idCourses = cnn.SelectIdCoursesByNom(nomCourse);
-                int idIngredient = cnn.SelectIdIngredientByNom(nomIngredient);
 
-                cnn.InsertNewIngredientListeCourses(idIngredient, idCourses);
-                cnn.SelectIngredientsListeCoursesById(idCourses, dgvListeCourses);
-            }
+            int idCourses = cnn.SelectIdCoursesByNom(nomCourse);
+            int idIngredient = cnn.SelectIdIngredientByNom(nomIngredient);
+
+            cnn.InsertNewIngredientListeCourses(idIngredient, idCourses);
+            cnn.SelectIngredientsListeCoursesById(idCourses, dgvListeCourses);
         }
 
         private static String GetNomSelectedIngredient(DataGridView dgv)
@@ -231,8 +240,7 @@ namespace GestionListeCourses
 
         private Boolean GetIsListeInconnue(String nomCourse)
         {
-            MessageBox.Show(cnn.SelectIdCoursesByNom(nomCourse).ToString());
-            return cnn.SelectIdCoursesByNom(nomCourse) != -1;
+            return cnn.SelectIdCoursesByNom(nomCourse) == 0;
         }
 
         private void btnSupprimer_Click(object sender, EventArgs e)
@@ -251,6 +259,15 @@ namespace GestionListeCourses
         {
             String nomCourse = textBoxNomCourses.Text;
 
+            Course.AfficherListeCourse(nomCourse, dgvListeCourses);
+        }
+
+        private void btnSupprIngredientsListecourses_Click(object sender, EventArgs e)
+        {
+            String nomCourse = textBoxNomCourses.Text;
+            int idCourses = cnn.SelectIdCoursesByNom(nomCourse);
+
+            cnn.DeleteIngredientsListeCourses(idCourses);
             Course.AfficherListeCourse(nomCourse, dgvListeCourses);
         }
     }

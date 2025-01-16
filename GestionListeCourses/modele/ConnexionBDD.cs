@@ -174,11 +174,51 @@ namespace GestionListeCourses.modele
             {
                 DateTime dateDuJour = DateTime.Now;
 
-                InsertIntoFaire(idIngredient, idCourses, dateDuJour);
+                cnn.Open();
+
+                string query = "INSERT INTO faire_ses_courses values (@idCourses, @idIngredient, @dateDuJour, 1);";
+                MySqlCommand command = new MySqlCommand(query, cnn);
+                command.Parameters.AddWithValue("@idIngredient", idIngredient);
+                command.Parameters.AddWithValue("@idCourses", idCourses);
+                command.Parameters.AddWithValue("@dateDuJour", dateDuJour);
+                //command.Parameters.AddWithValue("@qte", qte);
+                command.ExecuteNonQuery();
+
+                cnn.Close();
             }
             else
             {
-                MessageBox.Show("Aliment déjà présent");
+                cnn.Open();
+
+                string query = "SELECT qte FROM faire_ses_courses WHERE id_ingredient = @idIngredient2";
+                MySqlCommand command = new MySqlCommand(query, cnn);
+                command.Parameters.AddWithValue("@idIngredient2", idIngredient);
+                MySqlDataReader reader = command.ExecuteReader();
+                int nbIngredient = 1;
+
+
+                if (reader.Read())
+                {
+                    nbIngredient = reader.GetInt32("qte");
+                }
+
+                cnn.Close();
+
+                nbIngredient += 1;
+                DateTime dateDuJour = DateTime.Now;
+
+                cnn.Open();
+
+                string query2 = "UPDATE faire_ses_courses SET qte = @qte " +
+                                "WHERE id_courses = @idCourses2 " +
+                                "AND id_ingredient = @idIngredient3;";
+                MySqlCommand command2 = new MySqlCommand(query2, cnn);
+                command2.Parameters.AddWithValue("@qte", nbIngredient);
+                command2.Parameters.AddWithValue("@idCourses2", idCourses);
+                command2.Parameters.AddWithValue("@idIngredient3", idIngredient);
+                command2.ExecuteNonQuery();
+
+                cnn.Close();
             }
         }
 
@@ -189,8 +229,8 @@ namespace GestionListeCourses.modele
 
             cnn.Open();
 
-            string query = "SELECT id_ingredients FROM faire_ses_courses " +
-                "WHERE id_ingredient = @idIngredient AND id_course = @idCourses";
+            string query = "SELECT id_ingredient FROM faire_ses_courses " +
+                "WHERE id_ingredient = @idIngredient AND id_courses = @idCourses";
             MySqlCommand command = new MySqlCommand(query, cnn);
             command.Parameters.AddWithValue("@idIngredient", idIngredient);
             command.Parameters.AddWithValue("@idCourses", idCourses);
@@ -237,13 +277,66 @@ namespace GestionListeCourses.modele
         {
             cnn.Open();
 
-            string query = "DELETE FROM faire_ses_courses WHERE id_ingredient = @idIngredient AND id_courses = @idCourses;";
+            string query2 = "SELECT qte FROM faire_ses_courses WHERE id_ingredient = @idIngredient2";
+            MySqlCommand command2 = new MySqlCommand(query2, cnn);
+            command2.Parameters.AddWithValue("@idIngredient2", idIngredient);
+            MySqlDataReader reader = command2.ExecuteReader();
+            int nbIngredient = 1;
+
+
+            if (reader.Read())
+            {
+                nbIngredient = reader.GetInt32("qte");
+            }
+
+            
+            cnn.Close();
+
+            nbIngredient -= 1;
+
+            if (nbIngredient > 0)
+            {
+                DateTime dateDuJour = DateTime.Now;
+
+                cnn.Open();
+
+                string query3 = "UPDATE faire_ses_courses SET qte = @qte " +
+                                "WHERE id_courses = @idCourses2 " +
+                                "AND id_ingredient = @idIngredient3;";
+                MySqlCommand command3 = new MySqlCommand(query3, cnn);
+                command3.Parameters.AddWithValue("@qte", nbIngredient);
+                command3.Parameters.AddWithValue("@idCourses2", idCourses);
+                command3.Parameters.AddWithValue("@idIngredient3", idIngredient);
+                command3.ExecuteNonQuery();
+
+                cnn.Close();
+            } else
+            {
+                cnn.Open();
+
+                string query = "DELETE FROM faire_ses_courses WHERE id_ingredient = @idIngredient AND id_courses = @idCourses;";
+                MySqlCommand command = new MySqlCommand(query, cnn);
+                command.Parameters.AddWithValue("@idIngredient", idIngredient);
+                command.Parameters.AddWithValue("@idCourses", idCourses);
+                command.ExecuteNonQuery();
+
+                cnn.Close();
+            }
+        }
+
+
+        public void DeleteIngredientsListeCourses(int idCourses)
+        {
+            
+            cnn.Open();
+
+            string query = "DELETE FROM faire_ses_courses WHERE id_courses = @idCourses;";
             MySqlCommand command = new MySqlCommand(query, cnn);
-            command.Parameters.AddWithValue("@idIngredient", idIngredient);
             command.Parameters.AddWithValue("@idCourses", idCourses);
             command.ExecuteNonQuery();
 
             cnn.Close();
+            
         }
 
 
@@ -296,7 +389,7 @@ namespace GestionListeCourses.modele
 
         public void SelectIngredientsListeCoursesById(int idCourses, DataGridView dgvListeCourses)
         {
-            string query = "SELECT nom FROM ingredients " +
+            string query = "SELECT nom, faire_ses_courses.qte FROM ingredients " +
                 "inner join faire_ses_courses on ingredients.id_ingredient = faire_ses_courses.id_ingredient " +
                 "where faire_ses_courses.id_courses = " + idCourses;
 
@@ -310,26 +403,6 @@ namespace GestionListeCourses.modele
 
             cnn.Close();
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

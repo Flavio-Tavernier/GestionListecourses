@@ -31,5 +31,6 @@ namespace GestionListeCourses
         private Label labelInputNomListeCourses;
         private Label labelListeCoursesInconnue;
         private Button btnRecherche;
+        private Button btnSupprIngredientsListecourses;
     }
 }

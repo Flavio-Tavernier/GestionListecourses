@@ -40,3 +40,4 @@ C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\o
 C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\obj\Release\net6.0-windows\GestionListeCourses.pdb
 C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\obj\Release\net6.0-windows\GestionListeCourses.genruntimeconfig.cache
 C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\obj\Release\net6.0-windows\ref\GestionListeCourses.dll
+C:\Users\flavio.tavernier\source\repos\GestionListeCourses\GestionListeCourses\obj\Release\net6.0-windows\GestionListeCourses.Properties.Resources.resources

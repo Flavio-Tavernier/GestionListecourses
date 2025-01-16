@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,16 +26,10 @@ namespace GestionListeCourses.modele
 
 
         public static void AfficherListeCourse(string nomCourse, DataGridView dgvListeCourses)
-        { 
-            DataTable listeCourse = cnn.RecupererListeCourse(nomCourse);
-            
-            dgvListeCourses.DataSource = listeCourse;
-            dgvListeCourses.Columns[0].Visible = true;
+        {
+            int idCourse = cnn.SelectIdCoursesByNom(nomCourse);
+            cnn.SelectIngredientsListeCoursesById(idCourse, dgvListeCourses);
         }
-
-
-
-
 
 
 
